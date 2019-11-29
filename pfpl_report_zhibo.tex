@@ -1,0 +1,260 @@
+%-----------------------------------------------------------------------------
+%
+%               Template for sigplanconf LaTeX Class
+%
+% Name:         sigplanconf-template.tex
+%
+% Purpose:      A template for sigplanconf.cls, which is a LaTeX 2e class
+%               file for SIGPLAN conference proceedings.
+%
+% Guide:        Refer to "Author's Guide to the ACM SIGPLAN Class,"
+%               sigplanconf-guide.pdf
+%
+% Author:       Paul C. Anagnostopoulos
+%               Windfall Software
+%               978 371-2316
+%               paul@windfall.com
+%
+% Created:      15 February 2005
+%
+%-----------------------------------------------------------------------------
+
+
+\documentclass[preprint]{sigplanconf}
+
+
+
+\usepackage{titlesec, tabulary}
+\setcounter{secnumdepth}{4}
+
+
+
+
+% The following \documentclass options may be useful:
+
+% preprint       Remove this option only once the paper is in final form.
+%  9pt           Set paper in  9-point type (instead of default 10-point)
+% 11pt           Set paper in 11-point type (instead of default 10-point).
+% numbers        Produce numeric citations with natbib (instead of default author/year).
+% authorversion  Prepare an author version, with appropriate copyright-space text.
+
+\usepackage{amsmath}
+
+\newcommand{\cL}{{\cal L}}
+
+\begin{document}
+
+\special{papersize=8.5in,11in}
+\setlength{\pdfpageheight}{\paperheight}
+\setlength{\pdfpagewidth}{\paperwidth}
+
+% \conferenceinfo{CONF'yy}{Month d--d, 20yy, City, ST, Country}
+% \copyrightyear{20yy}
+% \copyrightdata{978-1-nnnn-nnnn-n/yy/mm}\reprintprice{\$15.00}
+% \copyrightdoi{nnnnnnn.nnnnnnn}
+
+% For compatibility with auto-generated ACM eRights management
+% instructions, the following alternate commands are also supported.
+%\CopyrightYear{2016}
+%\conferenceinfo{CONF'yy,}{Month d--d, 20yy, City, ST, Country}
+%\isbn{978-1-nnnn-nnnn-n/yy/mm}\acmPrice{\$15.00}
+%\doi{http://dx.doi.org/10.1145/nnnnnnn.nnnnnnn}
+
+% Uncomment the publication rights used.
+%\setcopyright{acmcopyright}
+\setcopyright{acmlicensed}  % default
+%\setcopyright{rightsretained}
+
+% \preprintfooter{short description of paper}   % 'preprint' option specified.
+
+
+\title{Reading Report on PFPL}
+\subtitle{Theories and Formulations of Computation}
+
+\authorinfo{Zhibo Chen}
+           {Universiy of California, San Diego}
+           {zhc159@ucsd.edu}
+\maketitle
+
+
+\begin{abstract}
+    In this report, I will summerize the main content that is in PFPL and
+    the philosophical perspective that Professor Robert Harper has towards the 
+    computation and programming languages. 
+\end{abstract}
+
+
+\section{Introduction}
+
+I will first present how the logic system that the author has set up in the first part of his
+book. Then I will present its applications in the formalization of some of the computation models.
+Each section will be divided into two parts, (i) the Philosophy part which summerizes the importance of 
+the book and the theoretical view that the author has towards the formulation of the computation 
+and (ii) the formal part where concrete syntax are laid out and proof of some theorems are presented. 
+
+In the formalities, I will not dive in the detailed mathematical presentation that 
+Harper has listed out but rather present my own understanding of what it is. 
+
+\section{Abstract Binding Tree}
+
+\subsection{Philosophy}
+Abstract binding trees are the crucial notion in Harper's PFPL book. Each program is represented mathematically
+as an abstract binding tree. 
+
+Unlike the string-based formal systems that we see in proof theories and logic, where 
+we first define vocabularies and grammar, we begin with a well-defined abstract binding 
+tree, which has a desirable structure that make structual induction very easy to perform. 
+
+
+\subsection{Formality}
+
+\subsubsection{Intuition}
+The syntax of abstract binding tree (or a program) is as follows:
+
+\[ expression := operator(bindings.expression, \dots) \]
+
+where operator is ususally a constant function that are defined by the syntax, and the thing 
+in the parenthesis is a list arguments to that function.
+
+\subsubsection{Formal Definitions}
+
+\paragraph{Sorts}
+
+Sorts are the fundamental concept of distinguishing between different classes or categories of syntax trees.
+Sorts are not \textbf{types} in a conventional sense, since usually the type system is represented
+by abstract binding trees. For example, in a usual programming language, there is the sort of \texttt{Exp} of 
+expressions and the sort \texttt{Typ} of the types of expressions. We use $s$ to refer to a sort and $\mathcal S$ 
+to refer to the set of sorts under consideration. In this case, $\mathcal S = \{\texttt{Exp},\texttt{Typ}\}$.
+
+\paragraph{Variables}
+Variables is a literal experssion of a certain sort. 
+We usually use $x_1$, $x_2$, ..., or $x_n$, or $y$, or $z$ to refer to variables.
+We write $\mathcal X_s$ to indicate the set of variables of sort s. 
+
+\paragraph{Abstractor and Valence}
+An abstractor has the form $x_1, \dots, x_k . a$ where $x_1, \dots, x_k$ are variables of 
+sorts $s_1, \dots, s_k$ respectively and $a$ is an abstract binding tree of sort $s$, we say that
+the abstractor $x_1, \dots, x_k . a$ has valence $v = s_1, \dots, s_k. s$, and that variables $x_1, \cdots, x_k$ are 
+bound in abstract binding tree $a$. 
+
+
+\paragraph{Operators and Arities}
+In an abstract syntax tree, if an operator accepts arguments of sort $s_1, s_2, \dots,s_n$ and 
+the result of applying an operator to a list of arguments of correct sort 
+is an abstarct syntax tree of sort $s$, we say that the operator has arity $(s_1, s_2, \dots, s_n)s$.
+
+In abstract binding tree, if an operator accepts arguments (which are abstractors) of valence $v_1, \dots, v_k$ and
+the result of applying an operator to a list of abstractors of correct valences is an
+abstract binding tree of sort $s$, we say that the operator has generalized arity
+$(v_1, \dots, v_n)s$, where $v_i $ has the form $(s_1, \dots, s_k)s_i$. 
+
+\paragraph{Abstract Binding Trees}
+Fix a set $\mathcal S$ of sorts, a family $\mathcal O$ of sets of operators indexed by their generalized arities, 
+for a family of sets of vaiables $\mathcal X = \{X_s\}_{s\in\mathcal S}$, the family of abstract 
+binding trees indexed by their sort $\mathcal B[\mathcal X] = \{\mathcal B[\mathcal X]_s\}_{s \in \mathcal S}$ 
+has the following two kinds of elements,
+
+(a) \textbf{Variables} if $x$ is an variable of sort $s$, then $x$ is an abstract syntax tree of sort $s$. 
+That is, if $x \in \mathcal X_s$, then $ x \in \mathcal B[\mathcal X]_s$.
+
+(b) \textbf{Operators with Arguments} if $o$ is an operator of generalized arity $(v_1, \dots, v_k)s$ 
+and $\vec{x}_1.a_1, \dots, \vec{x}_k.a_k$ are abstractors of correct valence, then 
+$o(\vec{x}_1.a_1; \dots; \vec{x}_k.a_k)$ is an abstract syntax tree of sort $s$. 
+
+That is, (quoted from the book) 
+``For each operator \(o\) of arity \(\left(\vec{s}_{1} . s_{1}, \ldots, \vec{s}_{n} . s_{n}\right) s,\)
+ if \(a_{1} \in \mathcal{B}\left[\mathcal{X}, \vec{x}_{1}\right]_{s_{1}}, \ldots,\) and \(a_{n} \in \mathcal{B}\left[\mathcal{X}, \vec{x}_{n}\right] s_{n}\)
+then \(o\left(\vec{x}_{1} . a_{1} ; \ldots ; \vec{x}_{n} . a_{n}\right) \in \mathcal{B}[\mathcal{X}]_{s}\)''
+
+This definition are not complete since abstract binding trees are intended to be ``identified modulo alpha renaming'', I 
+would not go into the details of the definition, but the idea is that alpha-equivalent abstract binding trees are identical. 
+
+\subsubsection{Structural Induction}
+Since abstract binding trees has only two kinds of members, we could use structual induction to prove that 
+all ABTs of sort $s$ has a proprety $P$ if
+
+(a) \textbf{Variables} all variables have the property $P$
+
+(b) \textbf{Operators with Arguments} if all arguments have property $P$, then the operator has property $P$. 
+
+We could prove that \textbf{all} ABTs of sort s has proprty $P$ by showing both (a) and (b) above. 
+
+I will leave out the technical details. Interested readers can refer to page 8 of the book. 
+
+\subsection{Hypothetical Judgements and Rules Induction}
+
+\subsubsection{Philosophy}
+Hypothetical judgements and rules induction are crucial to the design and implementation 
+of programming languages. In fact, almost all properties of programming languages and type 
+systems could be expressed by the rules in the form of hypothetical judgements and their properties 
+could be proved using rules induction.
+
+\subsubsection{Formal}
+\paragraph{Judgement}
+
+A judgement is a statement that states the property of some object, usually, abstract binding tree. 
+Sometimes, a judgement involves some other objects and is more similar to the concept of a relation. 
+For instance, an expression has a certain form with respect to some type environment, a tree has a certain 
+height, an expression takes certain number of steps to reduce to another expression. When another object is
+involved in expressing the property of the central object (usually an ABT), the judgement will be annotated 
+with additional information to express that property. Below is a few examples of judgements. 
+
+\begin{tabulary}{\linewidth}{l L}
+    \hline
+    Judgement & Meaning \\
+    \hline
+    $2 \texttt{ even}$  & Number $2$ is an even number \\
+    $t \texttt{ has height } h$ & Tree $t$ has height $h$ \\
+    $\Gamma \vdash e : \tau$ & In the type environment $\Gamma$, expression $e$ has type $\tau$ \\
+    $e \rightarrow^n e'$ & Expression $e$ reduces to expression $e'$ in $n$ steps \\
+    
+\end{tabulary}
+
+\paragraph{Inductive Definition and Rules}
+
+An inductive definition defines property of certain abstract binding tree by giving a list of rules. 
+For example, given operators, \texttt{empty} of arity \texttt{Exp}, and \texttt{node} of 
+arity \texttt{(Exp, Exp) Exp}, the following definition defines the height of a tree. 
+
+
+\begin{equation}
+\frac{}{\operatorname{empty} \texttt{ has height } 0}  \tag{R1} \\
+\end{equation}
+\begin{equation}
+\frac{t_1 \texttt{ has height } n_1 \qquad  t_2 \texttt{ has height } n_2}
+{\operatorname{node}(t_1; t_2) \texttt{ has height } max(n_1, n_2) + 1} \tag{R2}
+\end{equation}
+
+
+
+
+
+
+
+
+
+\appendix
+\section{Appendix Title}
+
+This is the text of the appendix, if you need one.
+
+\acks
+
+Acknowledgments, if needed.
+
+% The 'abbrvnat' bibliography style is recommended.
+
+\bibliographystyle{abbrvnat}
+
+% The bibliography should be embedded for final submission.
+
+% \begin{thebibliography}{}
+% \softraggedright
+
+% \bibitem[Smith et~al.(2009)Smith, Jones]{smith02}
+% P. Q. Smith, and X. Y. Jones. ...reference text...
+
+% \end{thebibliography}
+
+
+\end{document}
