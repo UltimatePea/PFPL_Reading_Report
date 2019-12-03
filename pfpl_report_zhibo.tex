@@ -1,31 +1,22 @@
-%-----------------------------------------------------------------------------
-%
-%               Template for sigplanconf LaTeX Class
-%
-% Name:         sigplanconf-template.tex
-%
-% Purpose:      A template for sigplanconf.cls, which is a LaTeX 2e class
-%               file for SIGPLAN conference proceedings.
-%
-% Guide:        Refer to "Author's Guide to the ACM SIGPLAN Class,"
-%               sigplanconf-guide.pdf
-%
-% Author:       Paul C. Anagnostopoulos
-%               Windfall Software
-%               978 371-2316
-%               paul@windfall.com
-%
-% Created:      15 February 2005
-%
-%-----------------------------------------------------------------------------
-
-
 \documentclass[preprint]{sigplanconf}
 
 
 
 \usepackage{titlesec, tabulary}
 \setcounter{secnumdepth}{4}
+\usepackage{graphicx}
+\usepackage{enumerate}
+\usepackage{ebproof}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{breqn}
+\usepackage{tikz}
+\newenvironment{absolutelynopagebreak}
+  {\par\nobreak\vfil\penalty0\vfilneg
+   \vtop\bgroup}
+  {\par\xdef\tpd{\the\prevdepth}\egroup
+   \prevdepth=\tpd}
 
 
 
@@ -78,7 +69,7 @@
 
 
 \begin{abstract}
-    In this report, I will summerize the main content that is in PFPL and
+    In this report, I will summarize the main content that is in PFPL and
     the philosophical perspective that Professor Robert Harper has towards the 
     computation and programming languages. 
 \end{abstract}
@@ -103,7 +94,7 @@ as an abstract binding tree.
 
 Unlike the string-based formal systems that we see in proof theories and logic, where 
 we first define vocabularies and grammar, we begin with a well-defined abstract binding 
-tree, which has a desirable structure that make structual induction very easy to perform. 
+tree, which has a desirable structure that make structural induction very easy to perform. 
 
 
 \subsection{Formality}
@@ -170,7 +161,7 @@ This definition are not complete since abstract binding trees are intended to be
 would not go into the details of the definition, but the idea is that alpha-equivalent abstract binding trees are identical. 
 
 \subsubsection{Structural Induction}
-Since abstract binding trees has only two kinds of members, we could use structual induction to prove that 
+Since abstract binding trees has only two kinds of members, we could use structural induction to prove that 
 all ABTs of sort $s$ has a proprety $P$ if
 
 (a) \textbf{Variables} all variables have the property $P$
@@ -181,27 +172,27 @@ We could prove that \textbf{all} ABTs of sort s has proprty $P$ by showing both 
 
 I will leave out the technical details. Interested readers can refer to page 8 of the book. 
 
-\subsection{Hypothetical Judgements and Rules Induction}
+\subsection{Hypothetical Judgments and Rules Induction}
 
 \subsubsection{Philosophy}
-Hypothetical judgements and rules induction are crucial to the design and implementation 
+Hypothetical judgments and rules induction are crucial to the design and implementation 
 of programming languages. In fact, almost all properties of programming languages and type 
-systems could be expressed by the rules in the form of hypothetical judgements and their properties 
+systems could be expressed by the rules in the form of hypothetical judgments and their properties 
 could be proved using rules induction.
 
 \subsubsection{Formal}
-\paragraph{Judgement}
+\paragraph{Judgment}
 
-A judgement is a statement that states the property of some object, usually, abstract binding tree. 
-Sometimes, a judgement involves some other objects and is more similar to the concept of a relation. 
+A judgment is a statement that states the property of some object, usually, abstract binding tree. 
+Sometimes, a judgment involves some other objects and is more similar to the concept of a relation. 
 For instance, an expression has a certain form with respect to some type environment, a tree has a certain 
 height, an expression takes certain number of steps to reduce to another expression. When another object is
-involved in expressing the property of the central object (usually an ABT), the judgement will be annotated 
-with additional information to express that property. Below is a few examples of judgements. 
+involved in expressing the property of the central object (usually an ABT), the judgment will be annotated 
+with additional information to express that property. Below is a few examples of judgments. 
 
 \begin{tabulary}{\linewidth}{l L}
     \hline
-    Judgement & Meaning \\
+    Judgment & Meaning \\
     \hline
     $2 \texttt{ even}$  & Number $2$ is an even number \\
     $t \texttt{ has height } h$ & Tree $t$ has height $h$ \\
@@ -225,26 +216,718 @@ arity \texttt{(Exp, Exp) Exp}, the following definition defines the height of a 
 {\operatorname{node}(t_1; t_2) \texttt{ has height } max(n_1, n_2) + 1} \tag{R2}
 \end{equation}
 
+\paragraph{Derivation}
+
+A derivation is a step-by-step proof of a judgment from known premises. 
+For example, to derive that the height of 
+$\operatorname{node}(\operatorname{empty}, \operatorname{node}(\operatorname{empty},\operatorname{empty}))$
+is $2$, we could construct the following derivation.
+
+
+\vspace{1em}
+
+\scalebox{.6}{
+\begin{prooftree}
+\infer0[R1]{\operatorname{empty} \texttt{ has height } 0}
+\infer0[R1]{\operatorname{empty} \texttt{ has height } 0}
+\infer0[R1]{\operatorname{empty} \texttt{ has height } 0}
+\infer2[R2]{\operatorname{node}(\operatorname{empty},\operatorname{empty}) \texttt{ has height } 0}
+\infer2[R2]{\operatorname{node}(\operatorname{empty},\operatorname{node}(\operatorname{empty},\operatorname{empty})) \texttt{ has height } 0}
+\end{prooftree}
+}
+
+\paragraph{Relationship of Inductive Definition, Rules and Derivation}
+
+On page 14, Harper writes:
+\begin{quotation}
+    ``A collection of rules is considered to define the strongest judgment form that is closed under, or
+respects, those rules. To be closed under the rules simply means that the rules are sufficient to show
+the validity of a judgment: J holds if there is a way to obtain it using the given rules. To be the
+strongest judgment form closed under the rules means that the rules are also necessary: J holds only
+if there is a way to obtain it by applying the rules. The sufficiency of the rules means that we may
+show that J holds by deriving it by composing rules. Their necessity means that we may reason
+about it using rule induction.''
+\end{quotation}
+
+As I interpret it, the essential idea is that a set of rules is really a mathematical definition! 
+The sufficiency condition states that, if we are able to derive
+that an ABT $a$ has a certain property $P$, then we know that $a$ has property $P$, 
+The necessity condition state that, if we know that an ABT $a$ has a certain proeprty $P$, 
+then there exists a derivation tree with $a$ has $P$ as its conclusion. 
+
+For example, rules R1 and R2 defines the height of a tree. 
+That is, for tree $\operatorname{node}(\operatorname{empty}, \operatorname{node}(\operatorname{empty},\operatorname{empty}))$,
+if we present a derivation that its height 
+is $2$, then we know that the tree's height 
+is $2$. And if we know that the tree's height is
+is $2$, we must be able to derive it using R1 and R2. 
+
+This property gives rise to the ability to do rule induction over inductive definitions. 
+
+For example, we could use rules induction to prove the following proposition:
+\newtheorem*{lemma}{Lemma}
+\begin{lemma}
+    If $node(t_1, t_2)$ has height $n$, then either $t_1$ has height $n-1$ or $t_2$ has height $n-1$.
+\end{lemma}
+\begin{proof}
+    Assume that $node(t_1, t_2)$ has height $n$, then we either used R1 or R2 to derive this.
+    Since the tree is of the form $node(-)$, R1 doesn't apply. So we must have derived it using R2. 
+    Then, the inductive hypothesis tells the maximum of heights of $t_1$ and $t_2$ is $n-1$, we have 
+ either $t_1$ has height $n-1$ or $t_2$ has height $n-1$.
+\end{proof}
+
+\paragraph{Hypothetical Judgments}
+
+Hypothetical judgments are judgments of the form $\Gamma \vdash J$, which asserts that 
+we could derive $J$ from propositions in $\Gamma$. 
+
+The judgment could appear in the premise and conclusion just as a regular judgment. 
+
+\section{Characteristics of Programming Language, case study with System \textsf{T}}
+\subsection{Philosophy}
+
+System \textsf{T} is a system with primitive recursion. All expressions are guaranteed to terminate. 
+In explaining the system, I will explain the what Harper calls "statics", "dynamics", and type safety 
+as a result of these notions. 
+
+Roughly statics take into consideration the type safety and well-formedness property. Dynamics is a 
+specification of the evaluation, that is ``how the program computes'' and ``what the program computes 
+to''. Type safety regards the relationship between the statics and dynamics. That is, 
+a well typed program could evaluate and the evaluation step will produce a well typed program. 
+
+\subsection{Definitions}
+
+\subsubsection{Concrete and Abstract Syntax}
+
+\newcommand{\olet}{\operatorname{let}}
+\newcommand{\plus}{\operatorname{plus}}
+\newcommand{\obe}{\operatorname{be}}
+\newcommand{\oin}{\operatorname{in}}
+
+
+We've introduced the abstract binding way as a way to express program. For example,
+we use $ \olet(a_1; x.a_2)$ to express a let binding, use $\plus(n_1; n_2)$ to express 
+addition, and so on. 
+We will call that syntax abstract syntax. Corresponding to each abstract syntax is a 
+concrete syntax that is more human readable. For instance, we would write 
+$\olet x \obe a_1 \oin a_2$ instead of $\olet(a_1; x. a_2)$ and $n_1 + n_2$ instead of 
+$\plus(n_1; n_2)$ for improved readability. 
+
+\subsubsection{Syntax of \textbf{T}}
+
+There are two sorts of abstract binding trees, $\texttt{Typ} \tau$ for 
+types and  $\texttt{Exp} e$ for expressions. 
+
+Abstract binding trees of sort $\tau$ has the following operators:
+
+
+\vspace{1em}
+\newcommand{\nat}{\operatorname{nat}}
+\newcommand{\arr}{\operatorname{arr}}
+\newcommand{\bN}{\mathbb{N}}
+
+\begin{absolutelynopagebreak}
+$\tau ::=$
+\vspace{.5em}
 
 
 
+\begin{tabulary}{\linewidth}{L L L}
+    \hline
+    Abstract Syntax & Concrete Syntax & Explanation \\
+    \hline
+    $\nat$ & $\bN$  & Natural numbers \\
+    $\arr(\tau_1; \tau_2)$ & $\tau_1 \to \tau_2$  & Functions
+\end{tabulary}
+\vspace{0.5em}
+
+\end{absolutelynopagebreak}
+
+\newcommand{\Typ}{\texttt{Typ}}
+
+The syntax defines what it is to be a abstract binding tree of sort $\texttt{Typ}$ or $\tau$. 
+Note here that $\arr$ has arity $(\Typ, \Typ)\Typ$
+For example, $\arr(\arr(\nat;\nat);\nat)$ is while $\arr(\operatorname{nay};\nat)$ isn't.
+And the concrete syntax tells us that we could write 
+$\arr(\arr(\nat;\nat);\nat)$ conveniently as $(\nat \to \nat) \to \nat$. 
+
+\newcommand{\Exp}{\texttt{Exp}}
+Abstract binding trees of sort $\Exp$ $e$ has the following members:
+
+\newcommand{\z}{\operatorname{z}}
+\newcommand{\s}{\operatorname{s}}
+\newcommand{\rec}{\operatorname{rec}}
+\newcommand{\with}{\texttt{with}}
+\newcommand{\lam}{\operatorname{lam}}
+\newcommand{\ap}{\operatorname{ap}}
+$e ::= $
+\vspace{0.5em}
+
+\begin{tabulary}{\linewidth}{l L l}
+    \hline
+    Abstract Syntax & Concrete Syntax & Explanation \\
+    \hline
+    $x$ & $x$ & Variable \\
+    $\z$ & $\z$ & Zero \\
+    $\s(e)$ & $\s(e)$ & Successor \\
+    $\rec\{e_0;x,y.e_1\}(e)$ 
+    & $\rec e \{\z \hookrightarrow e_0 \mid \s (x) \with y \hookrightarrow e_1\}$ 
+    & Recursion \\
+    $\lam\{\tau\}(x.e)$ & $\lambda (x:\tau) e$ & Abstraction \\
+    $\ap(e_1;e_2)$ & $e_1(e_2)$ & Application \\
+\end{tabulary}
+\vspace{0.5em}
+
+\newcommand{\sT}{\textbf{\textsf{T}}}
+
+For the following discussion, I will not distinguish between the term "program", "expression", "abstract binding tree"
+and use them interchangeably, since in \sT, a program is an expression which is represented as an abstract
+binding tree. 
+
+\subsubsection{Informal Semantics of \sT}
+
+Semantics concern the meaning of a program. System \sT could be used to define 
+terminating function on natural numbers. We have two forms of numbers, 
+$\z$ which represents the number $0$, and $\s(e)$ represents the successor of the number 
+represented by $e$. That is, $\s(\z)$ represents the number $1$, $\s(\s(\z))$ represents
+then number $2$, and so on. 
+
+$\s(-)$ and $\z$ are called the introduction forms of the natural number. They are used to construct
+an element of type $\bN$, whose meaning will become clear when we introduce the statics of \sT.
+Corresponding to the introduction forms there are elimination forms of $\bN$, which specifies what
+can we do with a natural number. In HoTT (Homotopy Type Theory), and Martin-L\"of's type theory,
+this is called the induction principle of $\bN$, which specifies that in order to a property $P$ of 
+any natural number $n$, it is sufficient to prove the base case and the inductive steps. 
+
+Operator $\rec\{e_0;x,y.e_1\}$ of arity $(\Exp)\Exp$ is the elimination form. Informally,  any argument 
+expression of type $\bN$, it checks whether it is zero or not. If the argument is zero, 
+the recursor will evaluate to $e_0$. If the argument is not zero, the argument 
+must be of the form $\s(e')$, and then the recursor will
+evaluate to $e_1$, with $x$ equal to $e'$ and $y$ equal to $\rec\{e_0;x,y.e_1\}(e')$, 
+the result of applying the recursor of the predecessor of the original argument. 
+
+Once we understand the informal semantics, we could use system \sT  to define a number of commonly 
+seen mathematical expressions:
+\paragraph{Double a number}
+We could use \sT to define the function which doubles its argument. 
+
+\[ \operatorname{double} = \lambda (n: \bN) \rec n \{ \z \hookrightarrow \z \mid 
+\s(x) \with y \hookrightarrow \s(\s(y)) \} \]
+
+This definition says, on any input argument $n$, invoke the recursor, 
+if $n$ is $\z$, then return $\z$ since $2 \cdot 0 = 0$. 
+If $n$ is of form $\s(e')$, then return $\operatorname{double}(e') + 2$, which is $\s(\s(y))$. 
 
 
+\paragraph{Add two numbers}
+We could use \sT to define the function which adds two numbers
+
+\begin{equation*}
+\begin{split}
+ \operatorname{add} = \lambda (n_1:\bN) \lambda (n_2: \bN) \rec n_1 \{ \z \hookrightarrow n_2 \mid \\
+\s(x) \with y \hookrightarrow \s(y) \} 
+\end{split}
+\end{equation*}
+
+This definition says, on any input argument $n_1$, $n_2$, we do a case analysis on $n_1$. 
+If $n_1$ is zero, then $n_1 + n_2 = 0 + n_2 = n_2$, and we just return $ n_2$. 
+If $n_1$ is the form of $s(x)$, then $n_1 + n_2 = (x + 1 ) + n_2 = (x + n_2) + 1$, and 
+since $x + n_2$ is just the result of the recursive call $add(x)(n_2) = y$, we just return $s(y)$. 
+
+\subsection{Statics}
+
+As quoted from page 33 of PFPL
+\begin{quotation}
+    ``Most programming languages exhibit a phase distinction between the static and dynamic phases of
+    processing. The static phase consists of parsing and type checking to ensure that the program is
+    well-formed; the dynamic phase consists of execution of well-formed programs. A language is
+    said to be safe exactly when well-formed programs are well-behaved when executed.''
+\end{quotation}
+
+In simple words, statics specify the typing rules for a programming language, and dynamics
+specify the execution and meaning (or semantics) of a language. 
+
+Typing is usually defined by the following judgment form.
+
+\vspace{0.4em}
+\begin{tabulary}{\linewidth}{l L}
+    \hline
+    Judgment & Meaning \\
+    \hline
+    $\Gamma \vdash e : \tau$ & In the type environment $\Gamma$, expression $e$ has type $\tau$ \\
+\end{tabulary}
+\vspace{0.4em}
 
 
+In System \sT, the statics is defined by the following rules. 
 
-\appendix
-\section{Appendix Title}
 
-This is the text of the appendix, if you need one.
+% Statics for system T
+\begin{equation}
+    \frac{}{\Gamma, x : \tau \vdash x : \tau}  \tag{VAR-REFL} \\
+\end{equation}
+\vspace{0.2em}
+\begin{equation}
+    \frac{}{\Gamma \vdash \z : \bN}  \tag{NAT-INTRO-Z} \\
+\end{equation}
+\vspace{0.2em}
+\begin{equation}
+    \frac
+    {\Gamma \vdash e : \bN}
+    {\Gamma \vdash \s(e) : \bN}  
+    \tag{NAT-INTRO-S} \\
+\end{equation}
+\vspace{0.2em}
+\begin{equation}
+    \frac
+    {\Gamma \vdash e : \bN 
+    \qquad \Gamma \vdash e_0 : \tau 
+    \qquad \Gamma, x: \bN, y : \tau \vdash e_1 : \tau}
+    {\Gamma \vdash \rec\{e_0;x,y.e_1\}(e) : \tau}  
+    \tag{NAT-ELIM} \\
+\end{equation}
+\begin{equation}
+    \frac
+    {\Gamma, x : \tau_1 \vdash e : \tau_2}
+    {\Gamma \vdash \lambda(x: \tau_1) e : \tau_1 \to \tau_2}
+    \tag{ARROW-INTRO} \\
+\end{equation}
+\begin{equation}
+    \frac
+    {\Gamma \vdash e_1 : \tau_1 \to \tau_2 
+    \qquad \Gamma \vdash e_2 : \tau_1}
+    {\Gamma \vdash e_1(e_2) : \tau_2}
+    \tag{ARROW-ELIM} \\
+\end{equation}
 
-\acks
+The symbol $\Gamma$, usually called type-checking environment, 
+type environment, or simply environment, often is a sequence of type judgments, which assigns
+types to variables.  Examples of $\Gamma$ are 
 
-Acknowledgments, if needed.
+\begin{enumerate}[(i)]
+    
+\item $\varnothing$
+\item $x : \bN$
+\item $y : \bN \to \bN$
+\item $x : \bN$, $y : \bN \to \bN$
+\item $x : \bN$, $y : \bN \to \bN$, $x : (\bN \to \bN) \to \bN$
 
-% The 'abbrvnat' bibliography style is recommended.
+\end{enumerate}
+Rule VAR-REFL says that if in the environment variable $x$ has type $\tau$, 
+then variable $x$ has type $\tau$. 
 
-\bibliographystyle{abbrvnat}
+Rule NAT-INTRO-Z states that operator $\z$ with no arguments is an expression of type $\bN$. 
+
+Rule NAT-INTRO-S states that if expression $e$ has type $\bN$, then successor of $e$, $\s(e)$ 
+has type $\bN$. 
+
+Rule NAT-ELIM states that if $e$ is a natural number, and $e_0$ and $e_1$ with arguments applied 
+has the same type, then the elimination form has that type. 
+
+Rule ARROW-INTRO states that if $e$ has type $\tau_2$ when the argument has type $\tau_1$, then 
+the lambda abstraction has type $\tau_1 \to \tau_2$. 
+
+Rule ARROW-ELIM states that an abstraction applied to correct arguments will yield expression of the  correct 
+type as result. 
+
+\subsection{Dynamics}
+
+Dynamics concern how the program executes. Harper identified four forms of specifying dynamics. 
+They are structural dynamics by defining how program transforms itself in each step, contextual  
+dynamics where program's evaluation order is specified by presence of an evaluation context, 
+equational dynamics where a equivalence relation is defined on the set of all programs, and evaluation
+dynamics where an evaluation relation between program terms and values are defined. 
+
+These formulation are almost equivalent to each other but for the purpose of subsequent type 
+safety proof, I will present the structural dynamics of \sT. 
+
+Structural dynamics consist of two forms of judgments. 
+
+\newcommand{\val}{\operatorname{val}}
+
+\vspace{0.4em}
+\begin{tabulary}{\linewidth}{l L}
+    \hline
+    Judgment & Meaning \\
+    \hline
+    $ e \val$ & Expression $e$ is a value \\
+    $e \mapsto e'$ & Expression $e$ reduces to expression $e'$ in $n$ steps \\
+\end{tabulary}
+\vspace{0.4em}
+
+
+A value is the final step in the evaluation process. For instance, $\s(\s(\z))$, the number $2$ 
+is a value while a reducible expression, an expression that could be computed, e.g. 
+$(\lambda (x:\bN) s(x))(\s(\z))$ is not a value. The reason is that 
+the let expression and function binding could be further evaluated and produce $\s(\s(\z))$ 
+as a result. 
+
+\paragraph{Lazy vs. Eager semantics}
+
+There are two flavors of evluation strategies for System \sT. They differ in treating 
+reducible expression that are subexpressions of the expression in question. 
+For example, although both strategies agree that $(\lambda (x: \bN ) \s(x))(\s(\z))$ is not a value and 
+could be evaluated to $\s(\s(\z))$, they disagree on whether $\s((\lambda (x: \bN ) \s(x))(\s(\z)))$ is a value.
+The eager strategy will reduce that expression but the lazy strategy prefers not to reduce that expression. 
+For now I will use the lazy evaluation formulation. 
+
+\paragraph{Capture-free substitution}
+
+Essential to the idea of evaluation is a substitution. We write the operation on the abstract binding tree
+"substitute the free occurances of variable $x$ in $e$ by the expression $e'$" as $[e'/x]e$. 
+
+They are defined inductively as follows:
+\begin{enumerate}[(i)]
+    \item 
+if $e$ is a variable $x'$, then $[e'/x]x'$ is $e'$ if $x = x'$ and $[e'/x]x'$ remains $x'$ if $x \ne x'$. 
+    \item
+if $e$ is an operator $o(\vec x_1.e_1, \dots, \vec x_n.e_n)$, 
+then $[e'/x]e$ is  $o([e'/x]\vec x_1.e_1, \dots, [e'/x]\vec x_n.e_n)$, 
+
+where 
+
+$[e'/x]\vec x_i.e_i$ is $\vec x_i.[e'/x]e_i$ if $x \notin \vec x_i$ , and 
+    
+$[e'/x]\vec x_i.e_i$ remains $\vec x_i.e_i$ if $x \in \vec x_i$. 
+
+To avoid capture of free variable in $e'$ by the abstraction $\vec x_i$, we require that 
+no free variable of $e'$, $FV(e')$ occurs in $\vec x_i$. That is, we requires $\vec x_i \notin e'$. 
+We may implement automatic renaming of variables should a naming conflict occurs. 
+
+\end{enumerate}
+
+Note that we write $[e_1,\dots, e_n/x_1,\dots,x_n]e$ to mean the simultaneous substitution of variables. 
+The expression is equivalent to $[e_1/x_1]\dots[e_n/x_n]e$
+
+I will now present the rules of evaluation in lazy semantics. 
+
+% \def\mylongmapsto#1{%
+% \begin{tikzpicture}
+% \draw (0,0.5mm) -- (0,-0.5mm);
+% \newlength\mylength
+% \setlength{\mylength}{\widthof{#1}}
+% \draw[->] (0,0) -- (1.2\mylength,0) node[above,midway] {#1};
+% \end{tikzpicture}
+% }
+
+\newcommand{\mylongmapsto}{\longmapsto}
+
+\begin{equation}
+    \frac
+    {}
+    {\z\val}
+    \tag{Z-VAL} \\
+\end{equation}
+\begin{equation}
+    \frac
+    {}
+    {\s(e)\val}
+    \tag{S-VAL} \\
+\end{equation}
+\begin{equation}
+    \frac
+    {}
+    {\lambda (x: \tau) e \val}
+    \tag{LAM-VAL} \\
+\end{equation}
+\begin{equation}
+    \frac
+    {e_1 \mapsto e_1'}
+    {e_1(e_2) \mapsto e_1'(e_2)}
+    \tag{APP-FUNC} \\
+\end{equation}
+\begin{equation}
+    \frac
+    {}
+    {(\lambda (x: \tau) e)(e_2) \mapsto [e_2/x]e}
+    \tag{APP-BETA} \\
+\end{equation}
+\begin{equation}
+    \frac
+    {e \mapsto e'}
+    {\rec\{e_0;x,y.e_1\}(e) \mapsto \rec\{e_0;x,y.e_1\}(e')}
+    \tag{REC-ARG} \\
+\end{equation}
+\begin{equation}
+    \frac
+    {}
+    {\rec\{e_0;x,y.e_1\}(\z) \mapsto e_0}
+    \tag{REC-Z} \\
+\end{equation}
+\begin{equation}
+    \frac
+    {}
+    {\rec\{e_0;x,y.e_1\}(\s(e)) \mapsto [e, \rec\{e_0;x,y.e_1\}(e)/x,y]e_1}
+    \tag{REC-S} \\
+\end{equation}
+
+The rules Z-VAL, S-VAL, and LAM-VAL tell us that zero, successor of an expression and lambda abstraction are values. 
+
+The rules APP-FUNC and APP-BETA tell us that to evaluate an application, we first evaluate the expression in the function
+position. Once evaluated, the function position should be a lambda abstraction (if the program is well typed, but we will prove this later)
+then the result is just to substitute the argument into the body of the function. Notice, under strict semantics 
+we would also need to make sure the argument is fully evaluated, but in the lazy semantics, we can just substitute 
+the argument in. 
+
+The rules REC-ARG, REC-Z and REC-S tells us how to evaluate an recusor. Namely, first evaluate the argument, which is a 
+natural number. If the argument is zero, then we take a step and transition to $e_0$. If the argument is the 
+successor of another argument, we evaluate $e_1$ with $x$ being the predecessor, and $y$ being the result of recursive call
+on the predecessor, which is represented as $\rec\{e_0;x,y.e_1\}(e)$
+
+\subsection{Example of Evaluation}
+
+Once we have the rules, we could see how functions are evaluated. Recall the add function 
+we've defined previously
+
+\begin{equation*}
+    \begin{split}
+     \operatorname{add} = \lambda (n_1:\bN) \lambda (n_2: \bN) \rec n_1 \{ \z \hookrightarrow n_2 \mid \\
+    \s(x) \with y \hookrightarrow \s(y) \} 
+    \end{split}
+\end{equation*}
+
+
+If we were to compute $2 + 3$, that is, we would do the following:
+(We will abbreviate $\s(\s(\s(\z))))$ as $3$ and so on as needed). 
+
+\begin{align}
+&\operatorname{add}(3)(2)  \notag\\
+&= (\lambda (n_1:\bN) \lambda (n_2: \bN) \notag \\ 
+ & \qquad \rec n_1 \{ \z \hookrightarrow n_2 \mid 
+    \s(x) \with y \hookrightarrow \s(y) \} )(\s(\s(\z)))(3) \notag \\
+&\mapsto ( \lambda (n_2: \bN) \notag \\ 
+ & \qquad \rec (\s(\s(\z)) \{ \z \hookrightarrow n_2 \mid 
+    \s(x) \with y \hookrightarrow \s(y) \} )(3) \tag{by APP-BETA} \\
+&\mapsto \rec (\s(\s(\z)) \{ \z \hookrightarrow 3 \mid 
+    \s(x) \with y \hookrightarrow \s(y) \}  \tag{by APP-BETA} \\
+&\mapsto s(\rec (\s(\z)) \{ \z \hookrightarrow 3 \mid 
+    \s(x) \with y \hookrightarrow \s(y) \})  \tag{by REC-S} \\
+&\mapsto s(s(\rec (\z) \{ \z \hookrightarrow 3 \mid 
+    \s(x) \with y \hookrightarrow \s(y) \}))  \tag{by REC-S} \\
+&\mapsto s(s(3)) \tag{by REC-Z} \\
+&= 5 \notag
+\end{align}
+
+In this case, all rules used have no hypothesis.
+
+\subsection{Structural Properties of Type System}
+
+Statics of the System \sT enjoys the substitution weakening structural properties. 
+Substitution is the well-definedness property of the type system and is essential to 
+ensure the type safety during execution. Weakending is crucial for the derivation tree especially
+accessing variables that are not in the immediate abstraction. We could prove both property by rule induction. 
+
+\begin{lemma} 
+(Weakening) In \sT, if $ \Gamma \vdash e' : \tau'$, then $\Gamma, x : \tau \vdash e' : \tau'$,
+assuming $x \notin dom(\Gamma)$. 
+\end{lemma}
+\begin{proof}
+    \textbf{Note: There is one thing that I don't understand about the proof of the lemma. 
+    Namely, how we interpret and handle contexts that are extended by a variable. say 
+    VAR-REFL, The normal proof would show that $\Gamma, x:\tau, e:\tau' \vdash e:\tau'$. 
+    But I think the weakening lemma actually wants us to prove 
+    $\Gamma, e:\tau', x:\tau \vdash e:\tau'$. I don't see how we can prove that. I
+    would need to meet with the professor to discuss how I can prove it. For the rest of 
+    this paper, I would assume that this theorem has been proved. }
+    % By induction on the derivation of the antecedent, $ \Gamma \vdash e' : \tau'$. 
+    % \begin{enumerate}[(i)]
+    %     \item 
+    % \end{enumerate}
+    % \begin{enumerate}[(i)]
+    %     \item VAR-REFL
+    %     \item NAT-INTRO-Z
+    %     \item NAT-INTRO-S
+    %     \item NAT-ELIM
+    %     \item ARROW-INTRO
+    %     \item ARROW-ELIM
+    % \end{enumerate}
+
+
+\end{proof}
+
+\begin{lemma}
+(Substitution) If $\Gamma \vdash e_2 : \tau'$, and $\Gamma, x: \tau' \vdash e_1: \tau$, 
+then $\Gamma \vdash [e_2/x] e_1 : \tau$. 
+\end{lemma}
+\begin{proof}
+    By induction on the derivation of $\Gamma, x: \tau' \vdash e_1: \tau$. 
+    \begin{enumerate}[(i)]
+        \item VAR-REFL
+        
+        In this case, $e_1$ is a variable with type $\tau$. There are only two cases. Case 1, $e_1 = x$, then $\tau = \tau'$,
+        then $[e_2/x]e_1 = e_2$ has type $\tau$. Case 2, $e_1 \ne x$,
+        then $[e_2/x]e_1 = e_1$ has type $\tau$. 
+        \item NAT-INTRO-Z
+
+        In this case, $e_1 = \z$ has type $\bN$, the type remains $\bN$. 
+        \item NAT-INTRO-S
+
+        
+        In this case, $e_1 = \s(e')$ has type $\bN$, 
+        where $\Gamma, x:\tau' \vdash e' : \bN$,
+        by the inductive hypothesis, $\Gamma, x:\tau' \vdash [e_2/x]e' : \bN$, 
+        so $\Gamma, x:\tau' \vdash s([e_2/x]e'): \bN$ by NAT-INTRO-S,
+        then $\Gamma, x:\tau' \vdash [e_2/x]s(e'): \bN$ by rules of substitution,
+        then  $\Gamma, x:\tau' \vdash [e_2/x]e_1: \bN$ since $e_1 = s(e')$. 
+        \item NAT-ELIM
+
+        In this case, $e_1 = \rec\{e';x',y.e''\}(e''')$ has type $\tau$, 
+        where 
+
+        (a)$\Gamma, x:\tau' \vdash e''' : \bN$,
+
+        (b)$\Gamma, x:\tau' \vdash e' : \tau$,
+
+        and (c)$\Gamma, x:\tau', x':\bN, y:\tau \vdash e''' : \tau$.
+
+        By the inductive hypothesis (and permutation lemma), we get 
+
+        (a)$\Gamma, x:\tau' \vdash [e_2/x]e''' : \bN$,
+
+        (b)$\Gamma, x:\tau' \vdash [e_2/x]e' : \tau$,
+
+        and (c)$\Gamma, x:\tau', x':\bN, y:\tau \vdash [e_2/x]e''' : \tau$, 
+
+        so 
+        
+        $\Gamma, x:\tau' \vdash \rec\{[e_2/x]e';x',y.[e_2/x]e''\}([e_2/x]e'''): \tau$ by NAT-ELIM of (a)(b)(c),
+        then 
+        
+        $\Gamma, x:\tau' \vdash [e_2/x]\rec\{e';x',y.e''\}(e'''): \tau$ by rules of substitution.
+
+        since  $e_1 = \rec\{e';x',y.e''\}(e''')$ 
+        we get  $\Gamma, x:\tau' \vdash [e_2/x]e_1: \tau$ 
+        
+        % I noticed the expressions inside brackets need to be substituted, 
+        % but Harper did not make it clear what brackets mean. 
+        \item ARROW-INTRO
+
+        In this case $e_1 = \lambda (x': \tau_1) e'$ has type $\tau_1 \to \tau_2$, where
+        $\Gamma, x:\tau', x': \tau_1 \vdash e' : \tau_2$.
+
+        By inductive hypothesis (and permutation lemma), 
+        $\Gamma, x:\tau', x': \tau_1 \vdash [e_2/x]e' : \tau_2$. 
+
+        Then $\Gamma, x:\tau', x':\tau_1 \vdash \lambda (x': \tau_1) [e_2/x]e' : \tau_1 \to \tau_2$,
+        by ARROW-INTRO. 
+
+        Then $\Gamma, x:\tau', x':\tau_1 \vdash [e_2/x](\lambda (x':\tau_1) e'): \tau_1 \to \tau_2$ 
+        by the rules of substitution. 
+
+        Since $e_1 = \lambda (x':\tau_1) e'$, we get
+
+        $\Gamma, x:\tau', x':\tau_1 \vdash [e_2/x]e_1: \tau_1 \to \tau_2$.  
+
+
+        \item ARROW-ELIM
+
+        In this case $e_1 = e'(e'')$ has type $\tau$, where
+        \[\Gamma, x:\tau' \vdash e' : \tau_1 \to \tau \]
+        and
+        \[\Gamma, x:\tau' \vdash e'' : \tau_1 \]
+
+        By inductive hypothesis, 
+        \[\Gamma \vdash [e_2/x]e' : \tau_1 \to \tau \]
+        and
+        \[\Gamma \vdash [e_2/x]e'' : \tau_1 \]
+
+        By ARROW-ELIM, we get
+        \[\Gamma \vdash ([e_2/x]e')([e_2/x]e''):  \tau \]
+
+        By rules of substituion, we get
+        \[\Gamma \vdash [e_2/x](e'(e'')):  \tau \]
+
+        Since $e_1 = e'(e'')$, we have
+        \[\Gamma \vdash [e_2/x]e_1:  \tau \]
+
+        
+
+
+    \end{enumerate}
+    
+\end{proof}
+
+\subsection{Safety}
+The type of safety of any programming system states that if I have a program 
+that's well typed, then the evaluation will not get stuck. This is expressed by two lemmas, 
+preservation and progress. Preservation states that evaluation does not change the type 
+of the program, and progress states that if a term is well typed, then we could evaluate it. 
+
+\begin{lemma}
+(Canonical Form of $\bN$) In \sT, if $\cdot \vdash e: \bN$ and $e$ is a value, then either $e$ is $\z$, or $e$ is 
+of the form $\s(e')$, where $\cdot \vdash e': \bN$. 
+\end{lemma}
+\begin{proof}
+    By induction on the derivation of $\cdot \vdash e : \bN$. 
+    \begin{enumerate}[(i)]
+        \item VAR-REFL
+
+        This rule does not apply since the type environment should be empty.
+        \item NAT-INTRO-Z
+        
+        $e$ is $\z$ in this case. 
+        \item NAT-INTRO-S
+
+        $e$ is $\s(e')$ and $\cdot \vdash e' : \bN$ by induction hypothesis.
+        \item NAT-ELIM
+
+
+        $e$ is $\rec(-)$ can never be a value, the claim holds vacuously.
+        \item ARROW-INTRO
+
+        $e$ is not of type $\bN$, so this rule does not apply. 
+        \item ARROW-ELIM
+
+        $e$ is $\ap(-;-)$ can never be a value, the claim holds vacuously.
+    \end{enumerate}
+
+\end{proof}
+
+
+\begin{lemma}
+(Canonical Form of $\to$) In \sT, if $\cdot \vdash e: \tau_1 \to \tau_2$ and $e$ is a value, then either $e$ is of the form $\lambda (x: \tau_1) e'$.
+\end{lemma}
+\begin{proof}
+    By induction on the derivation of $\cdot \vdash e : \bN$. 
+    \begin{enumerate}[(i)]
+        \item VAR-REFL
+
+        This rule does not apply since the type environment should be empty.
+        \item NAT-INTRO-Z
+        
+
+        $e$ is not of type $\tau_1 \to \tau_2$, so this rule does not apply. 
+        \item NAT-INTRO-S
+
+        $e$ is not of type $\tau_1 \to \tau_2$, so this rule does not apply. 
+        \item NAT-ELIM
+
+        $e$ is $\rec(-)$ can never be a value, the claim holds vacuously.
+        \item ARROW-INTRO
+
+        $e$ is of the form $\lambda (x: \tau_1) e'$. 
+        \item ARROW-ELIM
+
+        $e$ is $\ap(-;-)$ can never be a value, the claim holds vacuously.
+    \end{enumerate}
+
+\end{proof}
+
+\begin{lemma}
+(Preservation) if \
+\end{lemma}
+% \appendix
+% \section{Appendix Title}
+
+% This is the text of the appendix, if you need one.
+
+% \acks
+
+% Acknowledgments, if needed.
+
+% % The 'abbrvnat' bibliography style is recommended.
+
+% \bibliographystyle{abbrvnat}
 
 % The bibliography should be embedded for final submission.
 
