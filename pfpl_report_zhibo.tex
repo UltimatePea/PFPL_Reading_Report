@@ -714,33 +714,146 @@ In this case, all rules used have no hypothesis.
 
 Statics of the System \sT enjoys the substitution weakening structural properties. 
 Substitution is the well-definedness property of the type system and is essential to 
-ensure the type safety during execution. Weakending is crucial for the derivation tree especially
+ensure the type safety during execution. Weakening is crucial for the derivation tree especially
 accessing variables that are not in the immediate abstraction. We could prove both property by rule induction. 
 
+\textbf{Note: There is one thing that I was confused about the proof of the weakening lemma. 
+Namely, how we interpret and handle contexts that are extended by a variable. say 
+VAR-REFL, it is trivial to show that $\Gamma, x:\tau, e:\tau' \vdash e:\tau'$. 
+But I think the weakening lemma actually wants us to prove 
+$\Gamma, e:\tau', x:\tau \vdash e:\tau'$. I don't see how we can prove that, without
+the help of  permutation lemma. But I don't
+see how we can prove the permutation lemma either, at least in Harper's formulation. 
+While Pierce in his Types and Programming languages
+avoid such problem by defining VAR-REFL rule's premise as $x\in dom(\Gamma)$, Harper's 
+notion is more obscure since he did not mention and whether the sequence 
+is ordered or unordered. I think Harper might have the same idea to treat 
+the context as a set rather than a sequence in mind, since he insisted 
+that the comma means ``extending the context with a fresh variable''. But he never said anything 
+beyond that on the meaning of comma and type environment. But treating the context as a set would make 
+the following permutation lemma trivial. I guess that is the reason why Harper never stated
+the permutation lemma in his book, but instead used the automatic alpha renaming of abstract binding 
+trees to avoid the problem of repeated variable names in the context.}
+
+So for the reset of this report, I will treat the type judging context $\Gamma$ as a 
+set so the following permutation lemma, which treat the $\Gamma$ as a sequence trivial. 
 \begin{lemma} 
-(Weakening) In \sT, if $ \Gamma \vdash e' : \tau'$, then $\Gamma, x : \tau \vdash e' : \tau'$,
+(Permutation) In \sT, if $ \Gamma \vdash e : \tau$, and $\Delta$ is a permutation of $\Gamma$, 
+    then $ \Delta \vdash e : \tau$.
+\end{lemma}
+\begin{proof}
+    Trivial if $\Gamma$ is a set. 
+\end{proof}
+
+For the following proofs of structural properties, when I write $\Gamma, x : \tau$, I will assume that
+$x \notin dom(\Gamma)$. 
+
+\begin{lemma} 
+(Weakening) In \sT, if $ \Gamma \vdash e : \tau$, then $\Gamma, x : \tau' \vdash e : \tau$,
 assuming $x \notin dom(\Gamma)$. 
 \end{lemma}
 \begin{proof}
-    \textbf{Note: There is one thing that I don't understand about the proof of the lemma. 
-    Namely, how we interpret and handle contexts that are extended by a variable. say 
-    VAR-REFL, The normal proof would show that $\Gamma, x:\tau, e:\tau' \vdash e:\tau'$. 
-    But I think the weakening lemma actually wants us to prove 
-    $\Gamma, e:\tau', x:\tau \vdash e:\tau'$. I don't see how we can prove that. I
-    would need to meet with the professor to discuss how I can prove it. For the rest of 
-    this paper, I would assume that this theorem has been proved. }
-    % By induction on the derivation of the antecedent, $ \Gamma \vdash e' : \tau'$. 
-    % \begin{enumerate}[(i)]
-    %     \item 
-    % \end{enumerate}
-    % \begin{enumerate}[(i)]
-    %     \item VAR-REFL
-    %     \item NAT-INTRO-Z
-    %     \item NAT-INTRO-S
-    %     \item NAT-ELIM
-    %     \item ARROW-INTRO
-    %     \item ARROW-ELIM
-    % \end{enumerate}
+    By induction on the derivation of the antecedent, $ \Gamma \vdash e' : \tau'$. 
+    \begin{enumerate}[(i)]
+        \item VAR-REFL
+
+            In this case, $e = x'$ has type $\tau$, where
+            \[\Gamma,  x:\tau', x': \tau\vdash x':\tau\]
+
+            We have 
+            \[\Gamma,  x':\tau, x: \tau'\vdash e:\tau\]
+
+        \item NAT-INTRO-Z
+
+            In this case, $e = \z$ has type $\bN$, 
+            we have
+            \[\Gamma, x: \tau'\vdash \z:\bN\]
+            so
+            \[\Gamma, x: \tau'\vdash e:\bN\]
+        \item NAT-INTRO-S
+
+            In this case, $e = \s(e')$ has type $\bN$, 
+            where
+            \[\Gamma \vdash e' : \bN\]
+
+            By inductive hypothesis
+            \[\Gamma, x:\tau' \vdash e' : \bN\]
+
+            By NAT-INTRO-S
+            \[\Gamma, x:\tau' \vdash s(e') : \bN\]
+
+            Since $e = \s(e')$, we get
+            \[\Gamma, x: \tau'\vdash e:\bN\]
+
+        \item NAT-ELIM
+
+        In this case, $e = \rec\{e';x',y.e''\}(e''')$ has type $\tau$, 
+        where 
+
+			\[\Gamma \vdash e''' : \bN \tag{a}\]
+
+			\[\Gamma \vdash e' : \tau \tag{b}\]
+
+			\[\Gamma, x':\bN, y:\tau \vdash e''' : \tau \tag{c}\]
+
+
+        By the inductive hypothesis, we get 
+
+			\[\Gamma, x:\tau' \vdash e''' : \bN \tag{a}\]
+
+			\[\Gamma, x:\tau' \vdash e' : \tau \tag{b}\]
+
+			\[\Gamma, x:\tau', x':\bN, y:\tau \vdash e''' : \tau \tag{c}\]
+
+		By  NAT-ELIM of (a)(b)(c) above,
+			\[\Gamma, x:\tau' \vdash \rec\{e';x',y.e''\}(e'''): \tau\]
+
+
+        Since $e = \rec\{e';x',y.e''\}(e''')$ 
+        we get 
+			\[\Gamma, x:\tau' \vdash e: \tau\] 
+        
+        % I noticed the expressions inside brackets need to be substituted, 
+        % but Harper did not make it clear what brackets mean. 
+        \item ARROW-INTRO
+
+        In this case $e = \lambda (x': \tau_1) e'$ has type $\tau_1 \to \tau_2$, where
+		\[\Gamma, x': \tau_1 \vdash e' : \tau_2\]
+
+        By inductive hypothesis,  we get
+        \[\Gamma, x:\tau', x': \tau_1 \vdash e' : \tau_2\]
+
+        By ARROW-INTRO. 
+		\[\Gamma, x:\tau'\vdash \lambda (x': \tau_1) e' : \tau_1 \to \tau_2\]
+
+
+        Since $e = \lambda (x':\tau_1) e'$, we get 
+		\[\Gamma, x:\tau' \vdash e: \tau_1 \to \tau_2\]
+
+
+        \item ARROW-ELIM
+
+        In this case $e = e'(e'')$ has type $\tau$, where
+        \[\Gamma \vdash e' : \tau_1 \to \tau \]
+        and
+        \[\Gamma \vdash e'' : \tau_1 \]
+
+        By inductive hypothesis, 
+        \[\Gamma, x:\tau' \vdash e' : \tau_1 \to \tau \]
+        and
+        \[\Gamma, x:\tau' \vdash e'' : \tau_1 \]
+
+        By ARROW-ELIM, we get
+        \[\Gamma, x:\tau' \vdash e'(e''):  \tau \]
+
+        Since $e = e'(e'')$, we have
+        \[\Gamma, x:\tau' \vdash e:  \tau \]
+
+        
+
+
+
+    \end{enumerate}
 
 
 \end{proof}
@@ -764,59 +877,64 @@ then $\Gamma \vdash [e_2/x] e_1 : \tau$.
 
         
         In this case, $e_1 = \s(e')$ has type $\bN$, 
-        where $\Gamma, x:\tau' \vdash e' : \bN$,
-        by the inductive hypothesis, $\Gamma, x:\tau' \vdash [e_2/x]e' : \bN$, 
-        so $\Gamma, x:\tau' \vdash s([e_2/x]e'): \bN$ by NAT-INTRO-S,
-        then $\Gamma, x:\tau' \vdash [e_2/x]s(e'): \bN$ by rules of substitution,
-        then  $\Gamma, x:\tau' \vdash [e_2/x]e_1: \bN$ since $e_1 = s(e')$. 
+			where 
+			\[\Gamma, x:\tau' \vdash e' : \bN\]
+			By the inductive hypothesis, 
+			\[\Gamma \vdash [e_2/x]e' : \bN\]
+		By NAT-INTRO-S,
+			\[\Gamma \vdash s([e_2/x]e'): \bN\]
+		By rules of substitution,
+			\[\Gamma \vdash [e_2/x]s(e'): \bN\]
+		Since $e_1 = s(e')$,
+		we get
+			\[\Gamma \vdash [e_2/x]e_1: \bN\] 
         \item NAT-ELIM
 
         In this case, $e_1 = \rec\{e';x',y.e''\}(e''')$ has type $\tau$, 
         where 
 
-        (a)$\Gamma, x:\tau' \vdash e''' : \bN$,
+			\[\Gamma, x:\tau' \vdash e''' : \bN \tag{a}\]
 
-        (b)$\Gamma, x:\tau' \vdash e' : \tau$,
+			\[\Gamma, x:\tau' \vdash e' : \tau \tag{b}\]
 
-        and (c)$\Gamma, x:\tau', x':\bN, y:\tau \vdash e''' : \tau$.
+			\[\Gamma, x:\tau', x':\bN, y:\tau \vdash e''' : \tau \tag{c}\]
 
-        By the inductive hypothesis (and permutation lemma), we get 
+        By the inductive hypothesis, we get 
 
-        (a)$\Gamma, x:\tau' \vdash [e_2/x]e''' : \bN$,
+			\[\Gamma \vdash [e_2/x]e''' : \bN \tag{a}\]
 
-        (b)$\Gamma, x:\tau' \vdash [e_2/x]e' : \tau$,
+			\[\Gamma \vdash [e_2/x]e' : \tau \tag{b}\]
 
-        and (c)$\Gamma, x:\tau', x':\bN, y:\tau \vdash [e_2/x]e''' : \tau$, 
+			\[\Gamma, x':\bN, y:\tau \vdash [e_2/x]e''' : \tau \tag{c}\]
 
-        so 
-        
-        $\Gamma, x:\tau' \vdash \rec\{[e_2/x]e';x',y.[e_2/x]e''\}([e_2/x]e'''): \tau$ by NAT-ELIM of (a)(b)(c),
-        then 
-        
-        $\Gamma, x:\tau' \vdash [e_2/x]\rec\{e';x',y.e''\}(e'''): \tau$ by rules of substitution.
+		By  NAT-ELIM of (a)(b)(c) above,
+			\[\Gamma \vdash \rec\{[e_2/x]e';x',y.[e_2/x]e''\}([e_2/x]e'''): \tau\]
 
-        since  $e_1 = \rec\{e';x',y.e''\}(e''')$ 
-        we get  $\Gamma, x:\tau' \vdash [e_2/x]e_1: \tau$ 
+		By rules of substitution
+			\[\Gamma \vdash [e_2/x]\rec\{e';x',y.e''\}(e'''): \tau\]
+
+        Since $e_1 = \rec\{e';x',y.e''\}(e''')$ 
+        we get 
+			\[\Gamma \vdash [e_2/x]e_1: \tau\] 
         
         % I noticed the expressions inside brackets need to be substituted, 
         % but Harper did not make it clear what brackets mean. 
         \item ARROW-INTRO
 
         In this case $e_1 = \lambda (x': \tau_1) e'$ has type $\tau_1 \to \tau_2$, where
-        $\Gamma, x:\tau', x': \tau_1 \vdash e' : \tau_2$.
+			\[\Gamma, x:\tau', x': \tau_1 \vdash e' : \tau_2\]
 
-        By inductive hypothesis (and permutation lemma), 
-        $\Gamma, x:\tau', x': \tau_1 \vdash [e_2/x]e' : \tau_2$. 
+        By inductive hypothesis, 
+		\[\Gamma, x': \tau_1 \vdash [e_2/x]e' : \tau_2\]
 
-        Then $\Gamma, x:\tau', x':\tau_1 \vdash \lambda (x': \tau_1) [e_2/x]e' : \tau_1 \to \tau_2$,
-        by ARROW-INTRO. 
+        By ARROW-INTRO. 
+		\[\Gamma\vdash \lambda (x': \tau_1) [e_2/x]e' : \tau_1 \to \tau_2\]
 
-        Then $\Gamma, x:\tau', x':\tau_1 \vdash [e_2/x](\lambda (x':\tau_1) e'): \tau_1 \to \tau_2$ 
-        by the rules of substitution. 
+        By the rules of substitution,
+		\[\Gamma\vdash [e_2/x](\lambda (x':\tau_1) e'): \tau_1 \to \tau_2\] 
 
-        Since $e_1 = \lambda (x':\tau_1) e'$, we get
-
-        $\Gamma, x:\tau', x':\tau_1 \vdash [e_2/x]e_1: \tau_1 \to \tau_2$.  
+        Since $e_1 = \lambda (x':\tau_1) e'$, we get 
+		\[\Gamma \vdash [e_2/x]e_1: \tau_1 \to \tau_2\]
 
 
         \item ARROW-ELIM
@@ -846,6 +964,19 @@ then $\Gamma \vdash [e_2/x] e_1 : \tau$.
     \end{enumerate}
     
 \end{proof}
+
+\subsubsection{Discussion}
+Notice that the above proof of weakening and substitution is 
+structurally similar,  we could just say that ``they can be proved 
+by induction on the structure of type derivation''. 
+
+Notice the above proofs are also mechanical, it only involves string
+substitution and invoking induction hypothesis. This characteristic 
+gives rise the to the easy mechanical checking of the proofs by a proof
+checker such as Coq or Agda. Proofs in such proof assistant are written 
+using an expressive language and such proof tools could check whether the proof
+is correct. 
+
 
 \subsection{Safety}
 The type of safety of any programming system states that if I have a program 
@@ -914,8 +1045,14 @@ of the form $\s(e')$, where $\cdot \vdash e': \bN$.
 \end{proof}
 
 \begin{lemma}
-(Preservation) if \
+(Preservation) if $e \mapsto e'$ and $\cdot \vdash e : \tau$, then $\cdot \vdash e' : \tau$. 
 \end{lemma}
+\begin{proof}
+    By induction on the derivation of $e \mapsto e'$. 
+    \begin{enumerate}[(i)]
+        \item 
+    \end{enumerate}
+\end{proof}
 % \appendix
 % \section{Appendix Title}
 
