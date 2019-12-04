@@ -63,32 +63,29 @@
 \subtitle{Theories and Formulations of Computation}
 
 \authorinfo{Zhibo Chen}
-           {Universiy of California, San Diego}
+           {University of California, San Diego}
            {zhc159@ucsd.edu}
 \maketitle
 
 
 \begin{abstract}
-    In this report, I will summarize the main content that is in PFPL and
-    the philosophical perspective that Professor Robert Harper has towards the 
+    In this report, I will summarize the main content of PFPL (Practical Foundations 
+    of Programming Languages) and
+    the perspective that Professor Robert Harper has towards the 
     computation and programming languages. 
 \end{abstract}
 
 
 \section{Introduction}
 
-I will first present how the logic system that the author has set up in the first part of his
-book. Then I will present its applications in the formalization of some of the computation models.
-Each section will be divided into two parts, (i) the Philosophy part which summerizes the importance of 
-the book and the theoretical view that the author has towards the formulation of the computation 
-and (ii) the formal part where concrete syntax are laid out and proof of some theorems are presented. 
+In section 2, I will present how the logic system that the author has set up in the first part of his
+book. In section 3, I will present a system of specifying computation of terminating functions on natural numbers. 
+I will prove the type safety of that system. In section 4, I will discuss a few applications of the theories and 
+Harper's formulation. 
 
-In the formalities, I will not dive in the detailed mathematical presentation that 
-Harper has listed out but rather present my own understanding of what it is. 
 
 \section{Abstract Binding Tree}
 
-\subsection{Philosophy}
 Abstract binding trees are the crucial notion in Harper's PFPL book. Each program is represented mathematically
 as an abstract binding tree. 
 
@@ -97,28 +94,28 @@ we first define vocabularies and grammar, we begin with a well-defined abstract 
 tree, which has a desirable structure that make structural induction very easy to perform. 
 
 
-\subsection{Formality}
+\subsection{Definitions}
 
 \subsubsection{Intuition}
 The syntax of abstract binding tree (or a program) is as follows:
 
 \[ expression := operator(bindings.expression, \dots) \]
 
-where operator is ususally a constant function that are defined by the syntax, and the thing 
+where operator is  a constant function that are defined by the syntax, and 
 in the parenthesis is a list arguments to that function.
 
 \subsubsection{Formal Definitions}
 
 \paragraph{Sorts}
 
-Sorts are the fundamental concept of distinguishing between different classes or categories of syntax trees.
-Sorts are not \textbf{types} in a conventional sense, since usually the type system is represented
-by abstract binding trees. For example, in a usual programming language, there is the sort of \texttt{Exp} of 
-expressions and the sort \texttt{Typ} of the types of expressions. We use $s$ to refer to a sort and $\mathcal S$ 
+Sorts us the fundamental concept of distinguishing between different classes or categories of syntax trees.
+Sorts are not \textbf{types} in a conventional sense, since could be represented
+by abstract binding trees. For example, usually in programming language, there is the sort of \texttt{Exp} of 
+expressions and the sort \texttt{Typ} of the types. We use $s$ to refer to a sort and $\mathcal S$ 
 to refer to the set of sorts under consideration. In this case, $\mathcal S = \{\texttt{Exp},\texttt{Typ}\}$.
 
 \paragraph{Variables}
-Variables is a literal experssion of a certain sort. 
+Variables is a literal expression of a certain sort. 
 We usually use $x_1$, $x_2$, ..., or $x_n$, or $y$, or $z$ to refer to variables.
 We write $\mathcal X_s$ to indicate the set of variables of sort s. 
 
@@ -132,7 +129,7 @@ bound in abstract binding tree $a$.
 \paragraph{Operators and Arities}
 In an abstract syntax tree, if an operator accepts arguments of sort $s_1, s_2, \dots,s_n$ and 
 the result of applying an operator to a list of arguments of correct sort 
-is an abstarct syntax tree of sort $s$, we say that the operator has arity $(s_1, s_2, \dots, s_n)s$.
+is an abstract syntax tree of sort $s$, we say that the operator has arity $(s_1, s_2, \dots, s_n)s$.
 
 In abstract binding tree, if an operator accepts arguments (which are abstractors) of valence $v_1, \dots, v_k$ and
 the result of applying an operator to a list of abstractors of correct valences is an
@@ -141,7 +138,7 @@ $(v_1, \dots, v_n)s$, where $v_i $ has the form $(s_1, \dots, s_k)s_i$.
 
 \paragraph{Abstract Binding Trees}
 Fix a set $\mathcal S$ of sorts, a family $\mathcal O$ of sets of operators indexed by their generalized arities, 
-for a family of sets of vaiables $\mathcal X = \{X_s\}_{s\in\mathcal S}$, the family of abstract 
+for a family of sets of variables $\mathcal X = \{X_s\}_{s\in\mathcal S}$, the family of abstract 
 binding trees indexed by their sort $\mathcal B[\mathcal X] = \{\mathcal B[\mathcal X]_s\}_{s \in \mathcal S}$ 
 has the following two kinds of elements,
 
@@ -162,25 +159,24 @@ would not go into the details of the definition, but the idea is that alpha-equi
 
 \subsubsection{Structural Induction}
 Since abstract binding trees has only two kinds of members, we could use structural induction to prove that 
-all ABTs of sort $s$ has a proprety $P$ if
+all ABTs of sort $s$ has a property $P$ if
 
 (a) \textbf{Variables} all variables have the property $P$
 
 (b) \textbf{Operators with Arguments} if all arguments have property $P$, then the operator has property $P$. 
 
-We could prove that \textbf{all} ABTs of sort s has proprty $P$ by showing both (a) and (b) above. 
+We could prove that \textbf{all} ABTs of sort s has property $P$ by showing both (a) and (b) above. 
 
 I will leave out the technical details. Interested readers can refer to page 8 of the book. 
 
 \subsection{Hypothetical Judgments and Rules Induction}
 
-\subsubsection{Philosophy}
 Hypothetical judgments and rules induction are crucial to the design and implementation 
 of programming languages. In fact, almost all properties of programming languages and type 
 systems could be expressed by the rules in the form of hypothetical judgments and their properties 
 could be proved using rules induction.
 
-\subsubsection{Formal}
+\subsubsection{Definitions}
 \paragraph{Judgment}
 
 A judgment is a statement that states the property of some object, usually, abstract binding tree. 
@@ -252,7 +248,7 @@ about it using rule induction.''
 As I interpret it, the essential idea is that a set of rules is really a mathematical definition! 
 The sufficiency condition states that, if we are able to derive
 that an ABT $a$ has a certain property $P$, then we know that $a$ has property $P$, 
-The necessity condition state that, if we know that an ABT $a$ has a certain proeprty $P$, 
+The necessity condition state that, if we know that an ABT $a$ has a certain property $P$, 
 then there exists a derivation tree with $a$ has $P$ as its conclusion. 
 
 For example, rules R1 and R2 defines the height of a tree. 
@@ -284,10 +280,9 @@ we could derive $J$ from propositions in $\Gamma$.
 The judgment could appear in the premise and conclusion just as a regular judgment. 
 
 \section{Characteristics of Programming Language, case study with System \textsf{T}}
-\subsection{Philosophy}
 
 System \textsf{T} is a system with primitive recursion. All expressions are guaranteed to terminate. 
-In explaining the system, I will explain the what Harper calls "statics", "dynamics", and type safety 
+In explaining the system, I will explain the what Harper calls ``statics", ``dynamics", and type safety 
 as a result of these notions. 
 
 Roughly statics take into consideration the type safety and well-formedness property. Dynamics is a 
@@ -315,8 +310,8 @@ $\plus(n_1; n_2)$ for improved readability.
 
 \subsubsection{Syntax of \textbf{T}}
 
-There are two sorts of abstract binding trees, $\texttt{Typ} \tau$ for 
-types and  $\texttt{Exp} e$ for expressions. 
+There are two sorts of abstract binding trees, $\texttt{Typ } \tau$ for 
+types and  $\texttt{Exp } e$ for expressions. 
 
 Abstract binding trees of sort $\tau$ has the following operators:
 
@@ -326,7 +321,6 @@ Abstract binding trees of sort $\tau$ has the following operators:
 \newcommand{\arr}{\operatorname{arr}}
 \newcommand{\bN}{\mathbb{N}}
 
-\begin{absolutelynopagebreak}
 $\tau ::=$
 \vspace{.5em}
 
@@ -341,13 +335,12 @@ $\tau ::=$
 \end{tabulary}
 \vspace{0.5em}
 
-\end{absolutelynopagebreak}
 
 \newcommand{\Typ}{\texttt{Typ}}
 
 The syntax defines what it is to be a abstract binding tree of sort $\texttt{Typ}$ or $\tau$. 
 Note here that $\arr$ has arity $(\Typ, \Typ)\Typ$
-For example, $\arr(\arr(\nat;\nat);\nat)$ is while $\arr(\operatorname{nay};\nat)$ isn't.
+For example, $\arr(\arr(\nat;\nat);\nat)$ is while $\nat(\arr;\nat)$ isn't.
 And the concrete syntax tells us that we could write 
 $\arr(\arr(\nat;\nat);\nat)$ conveniently as $(\nat \to \nat) \to \nat$. 
 
@@ -564,7 +557,7 @@ as a result.
 
 \paragraph{Lazy vs. Eager semantics}
 
-There are two flavors of evluation strategies for System \sT. They differ in treating 
+There are two flavors of evaluation strategies for System \sT. They differ in treating 
 reducible expression that are subexpressions of the expression in question. 
 For example, although both strategies agree that $(\lambda (x: \bN ) \s(x))(\s(\z))$ is not a value and 
 could be evaluated to $\s(\s(\z))$, they disagree on whether $\s((\lambda (x: \bN ) \s(x))(\s(\z)))$ is a value.
@@ -574,7 +567,7 @@ For now I will use the lazy evaluation formulation.
 \paragraph{Capture-free substitution}
 
 Essential to the idea of evaluation is a substitution. We write the operation on the abstract binding tree
-"substitute the free occurances of variable $x$ in $e$ by the expression $e'$" as $[e'/x]e$. 
+``substitute the free occurrences of variable $x$ in $e$ by the expression $e'$" as $[e'/x]e$. 
 
 They are defined inductively as follows:
 \begin{enumerate}[(i)]
@@ -669,7 +662,7 @@ then the result is just to substitute the argument into the body of the function
 we would also need to make sure the argument is fully evaluated, but in the lazy semantics, we can just substitute 
 the argument in. 
 
-The rules REC-ARG, REC-Z and REC-S tells us how to evaluate an recusor. Namely, first evaluate the argument, which is a 
+The rules REC-ARG, REC-Z and REC-S tells us how to evaluate an recursor. Namely, first evaluate the argument, which is a 
 natural number. If the argument is zero, then we take a step and transition to $e_0$. If the argument is the 
 successor of another argument, we evaluate $e_1$ with $x$ being the predecessor, and $y$ being the result of recursive call
 on the predecessor, which is represented as $\rec\{e_0;x,y.e_1\}(e)$
@@ -702,6 +695,14 @@ If we were to compute $2 + 3$, that is, we would do the following:
     \s(x) \with y \hookrightarrow \s(y) \}  \tag{by APP-BETA} \\
 &\mapsto s(\rec (\s(\z)) \{ \z \hookrightarrow 3 \mid 
     \s(x) \with y \hookrightarrow \s(y) \})  \tag{by REC-S} \\
+    \notag
+\end{align}
+We are now done under lazy semantics we've introduced. 
+However, we could further evaluate the expression if we were using a strict semantics. 
+
+\begin{align}
+&s(\rec (\s(\z)) \{ \z \hookrightarrow 3 \mid 
+    \s(x) \with y \hookrightarrow \s(y) \})  \tag{by REC-S} \\
 &\mapsto s(s(\rec (\z) \{ \z \hookrightarrow 3 \mid 
     \s(x) \with y \hookrightarrow \s(y) \}))  \tag{by REC-S} \\
 &\mapsto s(s(3)) \tag{by REC-Z} \\
@@ -722,15 +723,14 @@ Namely, how we interpret and handle contexts that are extended by a variable. sa
 VAR-REFL, it is trivial to show that $\Gamma, x:\tau, e:\tau' \vdash e:\tau'$. 
 But I think the weakening lemma actually wants us to prove 
 $\Gamma, e:\tau', x:\tau \vdash e:\tau'$. I don't see how we can prove that, without
-the help of  permutation lemma. But I don't
-see how we can prove the permutation lemma either, at least in Harper's formulation. 
+the help of  permutation lemma, which I don't
+see how we can prove either, at least in Harper's formulation. 
 While Pierce in his Types and Programming languages
 avoid such problem by defining VAR-REFL rule's premise as $x\in dom(\Gamma)$, Harper's 
 notion is more obscure since he did not mention and whether the sequence 
 is ordered or unordered. I think Harper might have the same idea to treat 
 the context as a set rather than a sequence in mind, since he insisted 
-that the comma means ``extending the context with a fresh variable''. But he never said anything 
-beyond that on the meaning of comma and type environment. But treating the context as a set would make 
+that the comma means ``extending the context with a fresh variable''.Treating the context as a set would make 
 the following permutation lemma trivial. I guess that is the reason why Harper never stated
 the permutation lemma in his book, but instead used the automatic alpha renaming of abstract binding 
 trees to avoid the problem of repeated variable names in the context.}
@@ -952,7 +952,7 @@ then $\Gamma \vdash [e_2/x] e_1 : \tau$.
         By ARROW-ELIM, we get
         \[\Gamma \vdash ([e_2/x]e')([e_2/x]e''):  \tau \]
 
-        By rules of substituion, we get
+        By rules of substitution, we get
         \[\Gamma \vdash [e_2/x](e'(e'')):  \tau \]
 
         Since $e_1 = e'(e'')$, we have
@@ -1320,14 +1320,14 @@ The System \sT is a simple arithmetic evaluation system
  programming systems with more complex architecture and more advanced language features. 
 
  Due to space and time constraints, I am not able to write on all the systems and prove their 
- properties, I will list here a few systems that I find intersting the essential idea 
- in constructing those systems. However, in all these systems, the preservation and 
- progress theorems could all be proved, and such enables a clear and precise formulation 
+ properties, I will list here a few systems that I find interesting and the essential ideas 
+ in constructing those systems. In all these systems, the preservation and 
+ progress theorems could be proved, and such proofs ensure correct formulations
  of the computational properties of those systems. 
 
 
 
- \newcommand{\pcf}{\textbf{\textsf{PCF}}}
+ \newcommand{\pcf}{\textbf{\textsf{PCF }}}
  \newcommand{\fix}{\operatorname{fix}}
  \subsection{The fixed point operator}
  To construct a Turing-complete language, we would need the ability to compute 
@@ -1349,13 +1349,13 @@ and the following computation rule
 \end{equation}
 
 The fixed-point expression unfolds itself indefinitely, thus creating 
-capabilities ot define non-terminating functions. 
+capabilities to define non-terminating functions. 
 
 \subsection{Sum types and product types}
 
 Sum types are types of the form $A + B$ which has either expression of type $A$ 
 or expressions of type $B$ as its inhabitant. We use injection operation to construct a sum type. 
-Given $x$ if type $A$, $inl(x)$ would be of type $A+B$. To destruct a sum type, 
+Given $x$ if type $A$ or $y$ of type $B$, $inl(x)$ or $inr(y)$ would be of type $A+B$. To destruct a sum type, 
 we would do a case operation on the value of the type, and select different branches
 based on the type of the value in it. 
 
@@ -1381,7 +1381,7 @@ tree used for types. In the syntax for the sort of types in \sT, besides
 $\bN$ and $\to$, we have two more thing, a variable $t$ and a universal generalization operator $\forall(t.\tau)$. 
 
 The syntax of expression is also extended by two new forms of operators, a type generalization $\Lambda (t.e)$ and
-a type application $\App\{\tau\}(e)$, inforamlly written as $e[\tau]$. 
+a type application $\App\{\tau\}(e)$, informally written as $e[\tau]$. 
 Besides the usual context $\Gamma$ that maps variables to types, we have a 
 type context $\Delta$ that holds what type variables are in context. 
 
@@ -1470,9 +1470,9 @@ The evaluation rules ensure that
 the variable allocated are deallocated when the current evaluation finishes, by evaluates 
 the body of declaration $a.m$ in place instead of substitution.
 
-\section{Conclusion}
+\section{Concluding Remarks}
 
-In this reprot, I've presented the abstract syntax tree formulation. A case study with 
+In this report, I've presented the abstract syntax tree formulation. Then I've presented a case study with 
 System \sT of various language properties such as type safety. Finally, I've discussed a 
 few applications of Harper's system. The methodology introduced by Harper could be applied
  to formulate the computational properties of a lot of paradigm cases in language design and 
@@ -1481,28 +1481,6 @@ few applications of Harper's system. The methodology introduced by Harper could 
 
 
 
-% \appendix
-% \section{Appendix Title}
-
-% This is the text of the appendix, if you need one.
-
-% \acks
-
-% Acknowledgments, if needed.
-
-% % The 'abbrvnat' bibliography style is recommended.
-
-% \bibliographystyle{abbrvnat}
-
-% The bibliography should be embedded for final submission.
-
-% \begin{thebibliography}{}
-% \softraggedright
-
-% \bibitem[Smith et~al.(2009)Smith, Jones]{smith02}
-% P. Q. Smith, and X. Y. Jones. ...reference text...
-
-% \end{thebibliography}
 
 
 \end{document}
