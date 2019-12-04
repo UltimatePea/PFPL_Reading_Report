@@ -378,7 +378,7 @@ $e ::= $
 \end{tabulary}
 \vspace{0.5em}
 
-\newcommand{\sT}{\textbf{\textsf{T}}}
+\newcommand{\sT}{\textbf{\textsf{T }}}
 
 For the following discussion, I will not distinguish between the term "program", "expression", "abstract binding tree"
 and use them interchangeably, since in \sT, a program is an expression which is represented as an abstract
@@ -1269,8 +1269,7 @@ By rule, S-VAL,
 \begin{equation}
     \frac
     {\Gamma, x : \tau_1 \vdash e : \tau_2}
-    {\Gamma \vdash \lambda(x: \tau_1) e : \tau_1 \to \tau_2}
-    \tag{ARROW-INTRO} \\
+    {\Gamma \vdash \lambda(x: \tau_1) e : \tau_1 \to \tau_2} \notag
 \end{equation}
 
 By LAM-VAL
@@ -1326,7 +1325,161 @@ The System \sT is a simple arithmetic evaluation system
  progress theorems could all be proved, and such enables a clear and precise formulation 
  of the computational properties of those systems. 
 
- \subsection{}
+
+
+ \newcommand{\pcf}{\textbf{\textsf{PCF}}}
+ \newcommand{\fix}{\operatorname{fix}}
+ \subsection{The fixed point operator}
+ To construct a Turing-complete language, we would need the ability to compute 
+ functions that has infinite loop, namely, the ability to do recursion. System \pcf
+ extends the syntax of \sT with a fixed point operator, $\fix\{\tau\}(x.e)$, which 
+ has the following typing rule.
+
+\begin{equation}
+    \frac
+    {\Gamma, x: \tau \vdash e : \tau}
+    {\Gamma \vdash \fix\{\tau\}(x.e) : \tau} \notag
+\end{equation}
+
+and the following computation rule
+\begin{equation}
+    \frac
+    {}
+    {\fix\{\tau\}(x.e) \mapsto [\fix\{\tau\}(x.e)/x]e} \notag
+\end{equation}
+
+The fixed-point expression unfolds itself indefinitely, thus creating 
+capabilities ot define non-terminating functions. 
+
+\subsection{Sum types and product types}
+
+Sum types are types of the form $A + B$ which has either expression of type $A$ 
+or expressions of type $B$ as its inhabitant. We use injection operation to construct a sum type. 
+Given $x$ if type $A$, $inl(x)$ would be of type $A+B$. To destruct a sum type, 
+we would do a case operation on the value of the type, and select different branches
+based on the type of the value in it. 
+
+Product types are types of the form $A \times B$. A value of this type is a pair that 
+contains both a value of type $A$ and a value of type $B$. Given $x: A$ and $y: B$, 
+the pair $(x,y)$ would have type $ A \times B$. To destruct a pair, we could do a projection, 
+so $(x,y)\cdot l = x : A$ and $(x,y) \cdot r = y : B$. 
+
+Sum types and product types are called algebraic data types, and they are a good model 
+for a lot of data structures. For instance, Haskell has algebraic data types as its main data structure. 
+
+The nullary sum type is $void$  or $\textbf{0}$ and has no inhabitant. The nullary product type is $unit$ or $\textbf{1}$ and 
+has only one inhabitant $\langle\rangle$. The natural numbers could be modeled as $\textbf{1} + \textbf{1}$, where the 
+left injection represents zero and the right injection represents the successor. 
+
+\newcommand{\F}{\textsf{\textbf{F }}}
+\newcommand{\App}{\operatorname{App}}
+\subsection{System \F of polymorphic types}
+
+System \F is a good system which has parametric polymorphism. 
+This system performs substitution operation on abstract binding 
+tree used for types. In the syntax for the sort of types in \sT, besides 
+$\bN$ and $\to$, we have two more thing, a variable $t$ and a universal generalization operator $\forall(t.\tau)$. 
+
+The syntax of expression is also extended by two new forms of operators, a type generalization $\Lambda (t.e)$ and
+a type application $\App\{\tau\}(e)$, inforamlly written as $e[\tau]$. 
+Besides the usual context $\Gamma$ that maps variables to types, we have a 
+type context $\Delta$ that holds what type variables are in context. 
+
+The associated typing rule is that 
+\newcommand{\type}{\texttt{ type }}
+\begin{equation}
+    \frac
+    {\Delta, t \type \Gamma \vdash e : \tau}
+    {\Delta \Gamma \vdash \Lambda(t.e) : \forall(t. \tau)} \notag
+\end{equation}
+\begin{equation}
+    \frac
+    {\Delta \Gamma \vdash e : \forall(t.\tau') 
+    \qquad \Delta \vdash \tau \type}
+    {\Delta \Gamma \vdash \App\{\tau\}(e) : [\tau/x]\tau'}\notag
+\end{equation}
+
+The computations rules are 
+
+\begin{equation}
+    \frac
+    {}
+    {\App\{\tau\}(\Lambda(t.e)) \mapsto [\tau/t]e} \notag
+\end{equation}
+
+Notice that the computation rule states that type abstraction can only be 
+destructed through type application. Such correspondence is seen in a lot 
+of formulations of computation that introduces new types. Progress theorems ensure 
+that the computation won't get stuck. 
+
+\subsection{Generic Programming}
+
+Contrary to the generic programming as used in Java, generic programming used in PFPL
+is used to represent generic data structures and a systematic way of mapping between 
+structurally similar objects with different types. 
+
+\newcommand{\map}{\operatorname{map}}
+The system is implemented via a $\map\{t.\tau\}$ operator of 
+arity $(\Exp, \Exp)\Exp$,where $\tau$ represents the 
+structure of the argument that is polymorphic in $t$. 
+The the first argument represents a mapping in $t$, and
+the second argument is some instantiation of $t.\tau$. Roughly, the typing rule states 
+that 
+
+\begin{equation}
+    \frac
+    {\Gamma , x: \rho \vdash e' : \rho'
+    \qquad \Gamma \vdash e : [\rho/t]\tau}
+    {\Gamma \vdash \map\{t.\tau\}(x.e')(e) : [\rho'/t]\tau} \notag
+\end{equation}
+
+For example, if $\tau$ is the form $A\times B$, thus the argument structure must be a pair, 
+the computation rules will map function be applied to each of its components, without 
+knowing what's inside each component as they are structurally irrelevant. 
+ 
+\newcommand{\fold}{\operatorname{fold}}
+\newcommand{\unfold}{\operatorname{unfold}}
+\subsection{Inductive and Coinductive Types}
+
+The inductive types are specified by the type operator $\mu(t.\tau)$ which corresponds
+to the least fixed point solution of some type equation,
+while
+the coinductive types are specified by the type operator $\nu(t.\tau)$, which corresponds
+to the greatest fixed point solution of some type equation. 
+
+I am still learning Harper's formulation of these concepts.
+
+\subsection{Untyped Lambda Calculus}
+Perhaps the untyped lambda calculus is one reason why Harper doesn't want to give call his 
+``statics'' ``type system'', since it is still possible to give a statics formulation of the 
+classical untyped calculus -- all terms have a single type. And the statics states
+the well-formedness of expressions. The statics ensure that no free variables occur in 
+a closed program. 
+
+\subsection{Modal Distinction (Mutable States)}
+
+Harper introduced the system ``Modernized Algol'' as a formulation of a language 
+that has modal distinction. While Haskell uses the notion of IO monad for the same concept, 
+what underlies the idea of an IO monad is another sort of syntax, called ``command'', or $m$. 
+
+The most significant members of this set are $ret(e)$, which encapsulates 
+a pure expression into command, $bnd(e; x.m)$ which chains together two commands
+and $dcl(e;a.m)$ which opens a new scope. Expressions are 
+extended with operator $cmd(m)$ which encapsulates a command.
+The evaluation rules ensure that 
+the variable allocated are deallocated when the current evaluation finishes, by evaluates 
+the body of declaration $a.m$ in place instead of substitution.
+
+\section{Conclusion}
+
+In this reprot, I've presented the abstract syntax tree formulation. A case study with 
+System \sT of various language properties such as type safety. Finally, I've discussed a 
+few applications of Harper's system. The methodology introduced by Harper could be applied
+ to formulate the computational properties of a lot of paradigm cases in language design and 
+ system implementation. 
+
+
+
 
 % \appendix
 % \section{Appendix Title}
