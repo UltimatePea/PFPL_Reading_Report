@@ -1050,9 +1050,284 @@ of the form $\s(e')$, where $\cdot \vdash e': \bN$.
 \begin{proof}
     By induction on the derivation of $e \mapsto e'$. 
     \begin{enumerate}[(i)]
-        \item 
+        \item APP-FUNC
+
+        APP-FUNC states that 
+        \begin{equation}
+            \frac
+            {e_1 \mapsto e_1'}
+            {e_1(e_2) \mapsto e_1'(e_2)} \notag
+        \end{equation}
+
+        We know that 
+        \[\cdot \vdash e_1(e_2) : \tau \]
+
+        The only typing rules that apply in this case is APP-ELIM, so 
+        we get 
+        \[\cdot \vdash e_1 : \tau_1 \to \tau\]
+        and 
+        \[\cdot \vdash e_2 : \tau_1\]
+
+        Since $e_1 \mapsto e_1'$, and 
+        $\cdot \vdash e_1 : \tau_1 \to \tau$, by induction hypothesis, 
+        \[\cdot \vdash e_1' : \tau_1 \to \tau \]
+
+        Since $\cdot \vdash e_2 : \tau_1$, by APP-ELIM we get
+        \[\cdot \vdash e_1'(e_2) : \tau\]
+
+        
+
+        \item APP-BETA
+
+        APP-BETA states that 
+        \begin{equation}
+            \frac
+            {}
+            {(\lambda (x: \tau_1) e)(e_2) \mapsto [e_2/x]e} \notag
+        \end{equation}
+
+        We know that 
+        \[\cdot \vdash (\lambda (x: \tau_1) e)(e_2)  : \tau \tag{1} \]
+
+        The only typing rules that was applied to get (1) is APP-ELIM, so 
+        we get 
+        \[\cdot \vdash (\lambda (x: \tau_1) e): \tau_1 \to \tau \tag{2}\]
+        and 
+        \[\cdot \vdash e_2 : \tau_1 \tag{3}\]
+
+        The only typing rules that was applied to get (2) is APP-INTRO, so 
+        we get 
+        \[\cdot,x: \tau_1 \vdash e: \tau \tag{4}\]
+
+        By applying substitution lemma on (4)(3), we get
+        \[\cdot \vdash [e_2/x]e : \tau\]
+
+
+        \item REC-ARG
+
+        REC-ARG states that 
+\begin{equation}
+    \frac
+    {e \mapsto e'}
+    {\rec\{e_0;x,y.e_1\}(e) \mapsto \rec\{e_0;x,y.e_1\}(e')} \notag
+\end{equation}
+
+        We know that 
+        \[\cdot \vdash \rec\{e_0;x,y.e_1\}(e)  : \tau \tag{1} \]
+
+        The only typing rules that was applied to get (1) is NAT-ELIM, so 
+        we get 
+        \[\cdot \vdash e : \bN \tag{2} \]
+        \[\cdot \vdash e_0 : \tau \tag{3}\]
+        and
+        \[\cdot, x: \bN, y: \tau  \vdash e_1 : \tau \tag{4}\]
+
+        Since $e \mapsto e'$, by applying inductive hypothesis with (2), we get
+        \[\cdot \vdash e': \bN \tag{5}\]
+
+        Apply NAT-ELIM to (3)(4)(5), we get
+        \[\cdot \vdash \rec\{e_0;x,y.e_1\}(e')  : \tau  \]
+        \item REC-Z
+
+
+
+        REC-Z states that 
+\begin{equation}
+    \frac
+    {}
+    {\rec\{e_0;x,y.e_1\}(\z) \mapsto e_0} \notag
+\end{equation}
+        
+                We know that 
+                \[\cdot \vdash \rec\{e_0;x,y.e_1\}(\z)  : \tau  \]
+        
+                The only typing rules that was applied to get (1) is NAT-ELIM, so 
+                we get 
+                \[\cdot \vdash e_0 : \tau\]
+        \item REC-S
+
+        REC-S states that 
+\begin{equation}
+    \frac
+    {}
+    {\rec\{e_0;x,y.e_1\}(\s(e)) \mapsto [e, \rec\{e_0;x,y.e_1\}(e)/x,y]e_1} \notag
+\end{equation}
+        
+                We know that 
+                \[\cdot \vdash \rec\{e_0;x,y.e_1\}(\s(e))  : \tau \tag{1} \]
+        
+                The only typing rules that was applied to get (1) is NAT-ELIM, so 
+                we get 
+                \[\cdot \vdash \s(e) : \bN \tag{2} \]
+                \[\cdot \vdash e_0 : \tau \tag{3}\]
+                and
+                \[\cdot, x: \bN, y: \tau  \vdash e_1 : \tau \tag{4}\]
+
+                The only typing rules that was applied to get (2) is NAT-INTRO-S, so 
+                we get 
+                \[\cdot \vdash e : \bN \tag{5} \]
+        
+                Apply NAT-ELIM to (3)(4)(5), we get
+                \[\cdot \vdash \rec\{e_0;x,y.e_1\}(e)  : \tau  \tag{6}\]
+
+                By applying substitution lemma twice on (6)(5)(4), we get
+                \[\cdot \vdash  [e, \rec\{e_0;x,y.e_1\}(e)/x,y]e_1: \tau\]
+
     \end{enumerate}
 \end{proof}
+
+\begin{lemma}
+(Progress) If $\cdot \vdash e: \tau$, then either $e \val$ or there exists $e'$ such 
+that $e \mapsto e'$. 
+\end{lemma}
+\begin{proof}
+    By induction on the derivation of $\cdot \vdash e: \tau$. 
+    \begin{enumerate}[(i)]
+        \item VAR-REFL
+        
+        VAR-REFL states that 
+\begin{equation}
+    \frac{}{\Gamma, x : \tau \vdash x : \tau}  \notag \\
+\end{equation}
+
+        The context is not empty. So this rule does not apply. 
+        \item NAT-INTRO-Z
+        
+        NAT-INTRO-Z states that
+\begin{equation}
+    \frac{}{\Gamma \vdash \z : \bN}  \notag \\
+\end{equation}
+
+        By rule Z-VAL,
+        \[\z \val\]
+
+        \item NAT-INTRO-S
+
+NAT-INTRO-S states that
+\begin{equation}
+    \frac
+    {\Gamma \vdash e : \bN}
+    {\Gamma \vdash \s(e) : \bN}   \notag
+\end{equation}
+
+By rule, S-VAL, 
+\[\s(e) \val \]
+
+        \item NAT-ELIM
+        
+        NAT-ELIM states that 
+
+\begin{equation}
+    \frac
+    {\Gamma \vdash e : \bN 
+    \qquad \Gamma \vdash e_0 : \tau 
+    \qquad \Gamma, x: \bN, y : \tau \vdash e_1 : \tau}
+    {\Gamma \vdash \rec\{e_0;x,y.e_1\}(e) : \tau}  
+    \notag \\
+\end{equation}
+
+
+        In this case $\Gamma = \cdot$, we want to show either
+
+
+        $\rec\{e_0;x,y.e_1\}(e)$ is a value or there exists some expression 
+        that $\rec\{e_0;x,y.e_1\}(e)$ transitions to. 
+
+        Since we have $\Gamma \vdash e: \bN$ as the premise of the rule, 
+        we have \[\cdot \vdash e : \bN\]
+        
+        By inductive hypothesis, 
+        either $e \val$ or there exists $e'$ such that $e \mapsto e'$. 
+        We consider these two cases one by one. 
+        \begin{enumerate}[(a)]
+            \item There exists $e'$ such that $e \mapsto e'$. 
+            
+            Since $e\mapsto e'$, by REC-ARG, 
+            \[\rec\{e_0;x,y.e_1\}(e) \mapsto \rec\{e_0; x,y.e_1\}(e')\]
+
+            \item $e \val$. 
+
+            Since \[\cdot \vdash e : \bN\], by the Canonical Form of $\bN$ lemma, 
+            we have either $e$ is $\z$ or $e$ is of the form $\s(e')$. 
+
+            If $e$ is $\z$, then REC-Z applies and 
+            \[\rec\{e_0;x,y.e_1\}(\z) \mapsto e_0\]
+
+            If $e$ is of the form $\s(e')$, then REC-S applies and
+            \begin{align*}
+            &\rec\{e_0;x,y.e_1\}(\s(e')) \\
+            &\qquad \mapsto [e', \rec\{e_0;x,y.e_1\}(e')/x,y]e_1
+            \end{align*}
+            
+        \end{enumerate}
+
+
+
+        \item ARROW-INTRO
+
+        ARROW-INTRO states that 
+\begin{equation}
+    \frac
+    {\Gamma, x : \tau_1 \vdash e : \tau_2}
+    {\Gamma \vdash \lambda(x: \tau_1) e : \tau_1 \to \tau_2}
+    \tag{ARROW-INTRO} \\
+\end{equation}
+
+By LAM-VAL
+    \[\lambda(x: \tau_1) e \val\]
+
+
+        \item ARROW-ELIM
+        The ARROW-ELIM states that 
+\begin{equation}
+    \frac
+    {\Gamma \vdash e_1 : \tau_1 \to \tau_2 
+    \qquad \Gamma \vdash e_2 : \tau_1}
+    {\Gamma \vdash e_1(e_2) : \tau_2} \notag
+\end{equation}
+
+    In this case $\Gamma = \cdot$, so we have
+    \[\cdot \vdash e_1 : \tau_1 \to \tau_2 \]
+    and
+    \[\cdot \vdash e_2 : \tau_1 \]
+    
+    By inductive hypothesis, either $e_1 \val$ or 
+    there exists $e_1'$ such that $e_1 \mapsto e_1'$. 
+
+    If $e_1 \mapsto e_1'$, then by APP-FUNC, 
+    \[ e_1(e_2)  \mapsto e_1'(e_2) \]
+
+    If $e_1 \val$:
+
+    Since $\cdot \vdash e_1 : \tau_1 \to \tau_2 $, 
+    by the Canonical Form of $\to$,
+    $e_1$ is of the form $\lambda(x:\tau_1) e'$.
+
+    Then, by APP-BETA
+    \[ (\lambda(x:\tau_1)e')(e_2)  \mapsto [e_2/x]e' \]
+    
+
+    \end{enumerate}
+\end{proof}
+
+So far, through the preservation and progress theorem, 
+we've proved that the type system of \sT is safe. 
+
+\section{Summary and Future Works}
+
+The System \sT is a simple arithmetic evaluation system
+ that can only compute terminating functions on natural number, but the
+ techniques used in the language and formalization could be adapted to other 
+ programming systems with more complex architecture and more advanced language features. 
+
+ Due to space and time constraints, I am not able to write on all the systems and prove their 
+ properties, I will list here a few systems that I find intersting the essential idea 
+ in constructing those systems. However, in all these systems, the preservation and 
+ progress theorems could all be proved, and such enables a clear and precise formulation 
+ of the computational properties of those systems. 
+
+ \subsection{}
+
 % \appendix
 % \section{Appendix Title}
 
